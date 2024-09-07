@@ -1,4 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+    Box,
+    Typography,
+    IconButton,
+    Paper
+} from '@mui/material';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PauseIcon from '@mui/icons-material/Pause';
 
 function TrajectoryPlayer({ trajectory }) {
     const [audioContext, setAudioContext] = useState(null);
@@ -39,6 +47,10 @@ function TrajectoryPlayer({ trajectory }) {
 
         sourceRef.current = source;
         setIsPlaying(true);
+
+        source.onended = () => {
+            setIsPlaying(false);
+        };
     };
 
     const stopTrajectory = () => {
@@ -58,11 +70,16 @@ function TrajectoryPlayer({ trajectory }) {
     };
 
     return (
-        <div>
-            <button onClick={toggleTrajectory} disabled={!trajectory}>
-                {isPlaying ? 'Stop Trajectory' : 'Play Trajectory'}
-            </button>
-        </div>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <IconButton
+                onClick={toggleTrajectory}
+                disabled={!trajectory}
+                color="primary"
+                size="large"
+            >
+                {isPlaying ? <PauseIcon fontSize="large" /> : <PlayArrowIcon fontSize="large" />}
+            </IconButton>
+        </Box>
     );
 }
 

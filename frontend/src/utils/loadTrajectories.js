@@ -9,6 +9,7 @@ async function loadTrajectories() {
         const baseUrl = getBaseUrl();
         const fileList = await fetch(`${baseUrl}/data/trajectories-index.json`);
         const fileListData = await fileList.json();
+        console.log(fileListData);
 
         const loadedTrajectories = await Promise.all(
             fileListData.map(async (fileName) => {
