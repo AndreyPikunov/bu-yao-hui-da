@@ -1,11 +1,13 @@
 async function loadTrajectories() {
     try {
-        const fileList = await fetch('/data/trajectories-index.json');
+        // Use the correct path for GitHub Pages
+        const fileList = await fetch('/bu-yao-hui-da/data/trajectories-index.json');
         const fileListData = await fileList.json();
 
         const loadedTrajectories = await Promise.all(
             fileListData.map(async (fileName) => {
-                const trajectoryResponse = await fetch(`/data/trajectories/${fileName}`);
+                // Update the path here as well
+                const trajectoryResponse = await fetch(`/bu-yao-hui-da/data/trajectories/${fileName}`);
                 if (!trajectoryResponse.ok) {
                     throw new Error(`Failed to load trajectory: ${fileName}`);
                 }
