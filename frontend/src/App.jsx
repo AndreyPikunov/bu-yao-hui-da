@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import TrajectoryPlayer from './components/TrajectoryPlayer';
 import loadTrajectories from './utils/loadTrajectories';
+import TrajectoryVisualization from './components/TrajectoryVisualization';
+import TrajectoryTimeVisualization from './components/TrajectoryTimeVisualization';
 
 function App() {
     const [trajectories, setTrajectories] = useState([]);
@@ -36,6 +38,8 @@ function App() {
         return <div>Error: {error}</div>;
     }
 
+    const selectedTrajectory = trajectories[selectedTrajectoryIndex];
+
     return (
         <div className="App">
             <select
@@ -50,9 +54,13 @@ function App() {
                 ))}
             </select>
             <TrajectoryPlayer
-                trajectories={trajectories}
-                selectedTrajectoryIndex={selectedTrajectoryIndex}
+                trajectory={selectedTrajectory.data}
             />
+            <TrajectoryVisualization
+                trajectory={selectedTrajectory.data}
+            />
+            <TrajectoryTimeVisualization trajectory={selectedTrajectory.data} />
+
         </div>
     );
 }

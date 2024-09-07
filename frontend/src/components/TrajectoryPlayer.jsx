@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-function TrajectoryPlayer({ trajectories, selectedTrajectoryIndex }) {
+function TrajectoryPlayer({ trajectory }) {
     const [audioContext, setAudioContext] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const sourceRef = useRef(null);
@@ -17,9 +17,8 @@ function TrajectoryPlayer({ trajectories, selectedTrajectoryIndex }) {
     }, []);
 
     const playTrajectory = () => {
-        if (!audioContext || trajectories.length === 0) return;
+        if (!audioContext || !trajectory) return;
 
-        const trajectory = trajectories[selectedTrajectoryIndex].data;
         const bufferSize = trajectory[0].x.length;
         const buffer = audioContext.createBuffer(6, bufferSize, audioContext.sampleRate);
 
@@ -60,7 +59,7 @@ function TrajectoryPlayer({ trajectories, selectedTrajectoryIndex }) {
 
     return (
         <div>
-            <button onClick={toggleTrajectory} disabled={trajectories.length === 0}>
+            <button onClick={toggleTrajectory} disabled={!trajectory}>
                 {isPlaying ? 'Stop Trajectory' : 'Play Trajectory'}
             </button>
         </div>
