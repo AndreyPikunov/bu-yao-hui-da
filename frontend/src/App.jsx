@@ -8,9 +8,9 @@ import {
     Box,
     Stack,
     CssBaseline,
-    ThemeProvider,
-    createTheme
+    ThemeProvider
 } from '@mui/material';
+
 import TrajectoryPlayer from './components/TrajectoryPlayer';
 import loadTrajectories from './utils/loadTrajectories';
 import TrajectoryVisualization from './components/TrajectoryVisualization';
@@ -19,7 +19,7 @@ import { createDarkGrainyTheme } from './utils/backgroundUtils';
 
 function App() {
     const [trajectories, setTrajectories] = useState([]);
-    const [selectedTrajectoryIndex, setSelectedTrajectoryIndex] = useState(0);
+    const [selectedTrajectoryIndex, setSelectedTrajectoryIndex] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -29,6 +29,9 @@ function App() {
                 setLoading(true);
                 const loadedTrajectories = await loadTrajectories();
                 setTrajectories(loadedTrajectories);
+                // Select a random trajectory index
+                const randomIndex = Math.floor(Math.random() * loadedTrajectories.length);
+                setSelectedTrajectoryIndex(randomIndex);
                 setLoading(false);
             } catch (err) {
                 setError(err.message);
@@ -65,7 +68,7 @@ function App() {
                     <Paper elevation={3} sx={{ p: 2, width: '100%', maxWidth: 600, bgcolor: 'rgba(255, 255, 255, 0.02)' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                             <Select
-                                value={selectedTrajectoryIndex}
+                                value={selectedTrajectoryIndex !== null ? selectedTrajectoryIndex : ''}
                                 onChange={handleTrajectorySelection}
                                 disabled={trajectories.length === 0}
                                 sx={{ flexGrow: 1 }}
