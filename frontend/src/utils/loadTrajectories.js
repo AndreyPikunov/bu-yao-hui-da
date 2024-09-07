@@ -1,13 +1,18 @@
+function getBaseUrl() {
+  return process.env.NODE_ENV === 'production'
+    ? '/bu-yao-hui-da'
+    : '';
+}
+
 async function loadTrajectories() {
     try {
-        // Use the correct path for GitHub Pages
-        const fileList = await fetch('/bu-yao-hui-da/data/trajectories-index.json');
+        const baseUrl = getBaseUrl();
+        const fileList = await fetch(`${baseUrl}/data/trajectories-index.json`);
         const fileListData = await fileList.json();
 
         const loadedTrajectories = await Promise.all(
             fileListData.map(async (fileName) => {
-                // Update the path here as well
-                const trajectoryResponse = await fetch(`/bu-yao-hui-da/data/trajectories/${fileName}`);
+                const trajectoryResponse = await fetch(`${baseUrl}/data/trajectories/${fileName}`);
                 if (!trajectoryResponse.ok) {
                     throw new Error(`Failed to load trajectory: ${fileName}`);
                 }
