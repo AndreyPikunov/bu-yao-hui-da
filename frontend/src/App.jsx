@@ -1,87 +1,66 @@
-import { useState, useEffect, useRef } from 'react';
-import TrajectoryLoader from './components/TrajectoryLoader';
+import { useState, useEffect } from 'react';
+import TrajectoryPlayer from './components/TrajectoryPlayer';
+import loadTrajectories from './utils/loadTrajectories';
+import TrajectoryVisualization from './components/TrajectoryVisualization';
+import TrajectoryTimeVisualization from './components/TrajectoryTimeVisualization';
 
 function App() {
     const [trajectories, setTrajectories] = useState([]);
-    const [audioContext, setAudioContext] = useState(null);
-    const [isPlaying, setIsPlaying] = useState(false);
     const [selectedTrajectoryIndex, setSelectedTrajectoryIndex] = useState(0);
-    const sourceRef = useRef(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        setAudioContext(ctx);
-        return () => {
-            ctx.close();
-        };
+        async function fetchTrajectories() {
+            try {
+                setLoading(true);
+                const loadedTrajectories = await loadTrajectories();
+                setTrajectories(loadedTrajectories);
+                setLoading(false);
+            } catch (err) {
+                setError(err.message);
+                setLoading(false);
+            }
+        }
+
+        fetchTrajectories();
     }, []);
-
-    const playTrajectory = () => {
-        if (!audioContext || trajectories.length === 0) return;
-
-        const trajectory = trajectories[selectedTrajectoryIndex].data;
-        const bufferSize = trajectory[0].x.length;
-        const buffer = audioContext.createBuffer(6, bufferSize, audioContext.sampleRate);
-
-        trajectory.forEach((body, bodyIndex) => {
-            ['x', 'y'].forEach((component, componentIndex) => {
-                const channel = buffer.getChannelData(bodyIndex * 2 + componentIndex);
-                for (let i = 0; i < bufferSize; i++) {
-                    channel[i] = body[component][i];
-                }
-            });
-        });
-
-        const source = audioContext.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioContext.destination);
-        source.loop = true;
-        source.start();
-
-        sourceRef.current = source;
-        setIsPlaying(true);
-    };
-
-    const stopTrajectory = () => {
-        if (sourceRef.current) {
-            sourceRef.current.stop();
-            sourceRef.current = null;
-            setIsPlaying(false);
-        }
-    };
-
-    const toggleTrajectory = () => {
-        if (isPlaying) {
-            stopTrajectory();
-        } else {
-            playTrajectory();
-        }
-    };
 
     const handleTrajectorySelection = (event) => {
         setSelectedTrajectoryIndex(Number(event.target.value));
     };
 
+    if (loading) {
+        return <div>Loading trajectories...</div>;
+    }
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    const selectedTrajectory = trajectories[selectedTrajectoryIndex];
+
     return (
         <div className="App">
-            <h1>Trajectory Player</h1>
-            <select 
-                value={selectedTrajectoryIndex} 
+            <select
+                value={selectedTrajectoryIndex}
                 onChange={handleTrajectorySelection}
                 disabled={trajectories.length === 0}
             >
-                {trajectories.map((_, index) => (
+                {trajectories.map((trajectory, index) => (
                     <option key={index} value={index}>
-                        {trajectories[index].name}
+                        {trajectory.name}
                     </option>
                 ))}
             </select>
-            <button onClick={toggleTrajectory} disabled={trajectories.length === 0}>
-                {isPlaying ? 'Stop Trajectory' : 'Play Trajectory'}
-            </button>
-            <h1>Trajectory Loader</h1>
-            <TrajectoryLoader setTrajectories={setTrajectories} />
-            {/* Rest of your app components */}
+            <TrajectoryPlayer
+                trajectory={selectedTrajectory.data}
+            />
+            <TrajectoryVisualization
+                trajectory={selectedTrajectory.data}
+            />
+            <TrajectoryTimeVisualization trajectory={selectedTrajectory.data} />
+
         </div>
     );
 }
