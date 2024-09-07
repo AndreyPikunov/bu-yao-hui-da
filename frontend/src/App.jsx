@@ -5,6 +5,7 @@ function App() {
     const [trajectories, setTrajectories] = useState([]);
     const [audioContext, setAudioContext] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [selectedTrajectoryIndex, setSelectedTrajectoryIndex] = useState(0);
     const sourceRef = useRef(null);
 
     useEffect(() => {
@@ -18,20 +19,18 @@ function App() {
     const playTrajectory = () => {
         if (!audioContext || trajectories.length === 0) return;
 
-        const trajectory = trajectories[2].data[2].y;
-        const pitchFactor = 4; // Pitch up 4 times
-        const bufferSize = Math.floor(trajectory.length / pitchFactor);
-        const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
-        const channel = buffer.getChannelData(0);
+        const trajectory = trajectories[selectedTrajectoryIndex].data;
+        const bufferSize = trajectory[0].x.length;
+        const buffer = audioContext.createBuffer(6, bufferSize, audioContext.sampleRate);
 
-        for (let i = 0; i < bufferSize; i++) {
-            // Linear interpolation for smoother pitch shifting
-            const index = i * pitchFactor;
-            const indexFloor = Math.floor(index);
-            const indexCeil = Math.min(Math.ceil(index), trajectory.length - 1);
-            const fraction = index - indexFloor;
-            channel[i] = trajectory[indexFloor] * (1 - fraction) + trajectory[indexCeil] * fraction;
-        }
+        trajectory.forEach((body, bodyIndex) => {
+            ['x', 'y'].forEach((component, componentIndex) => {
+                const channel = buffer.getChannelData(bodyIndex * 2 + componentIndex);
+                for (let i = 0; i < bufferSize; i++) {
+                    channel[i] = body[component][i];
+                }
+            });
+        });
 
         const source = audioContext.createBufferSource();
         source.buffer = buffer;
@@ -59,9 +58,24 @@ function App() {
         }
     };
 
+    const handleTrajectorySelection = (event) => {
+        setSelectedTrajectoryIndex(Number(event.target.value));
+    };
+
     return (
         <div className="App">
             <h1>Trajectory Player</h1>
+            <select 
+                value={selectedTrajectoryIndex} 
+                onChange={handleTrajectorySelection}
+                disabled={trajectories.length === 0}
+            >
+                {trajectories.map((_, index) => (
+                    <option key={index} value={index}>
+                        {trajectories[index].name}
+                    </option>
+                ))}
+            </select>
             <button onClick={toggleTrajectory} disabled={trajectories.length === 0}>
                 {isPlaying ? 'Stop Trajectory' : 'Play Trajectory'}
             </button>
