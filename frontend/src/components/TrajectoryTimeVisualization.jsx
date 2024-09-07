@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 
-const TrajectoryTimeVisualization = ({ trajectory }) => {
+const TrajectoryTimeVisualization = ({ trajectory, currentStep }) => {
     if (!trajectory || trajectory.length !== 3) return null;
 
     const svgWidth = 600;
@@ -64,6 +64,9 @@ const TrajectoryTimeVisualization = ({ trajectory }) => {
                             (i === 0 ? 'M' : 'L') + pos.join(',')
                         ).join(' ');
 
+                        const currentXPosition = xScaledPositions[currentStep];
+                        const currentYPosition = yScaledPositions[currentStep];
+
                         return (
                             <g key={index}>
                                 <path
@@ -71,6 +74,7 @@ const TrajectoryTimeVisualization = ({ trajectory }) => {
                                     fill="none"
                                     stroke={bodyColors[index]}
                                     strokeWidth="2"
+                                    style={{ zIndex: 1 }}
                                 />
                                 <path
                                     d={yPathData}
@@ -78,13 +82,42 @@ const TrajectoryTimeVisualization = ({ trajectory }) => {
                                     stroke={bodyColors[index]}
                                     strokeDasharray="4"
                                     strokeWidth="2"
+                                    style={{ zIndex: 1 }}
+                                />
+                                <circle
+                                    cx={currentXPosition[0]}
+                                    cy={currentXPosition[1]}
+                                    r="7"
+                                    fill={bodyColors[index]}
+                                    style={{ zIndex: 2 }}
+                                />
+                                <circle
+                                    cx={currentXPosition[0]}
+                                    cy={currentXPosition[1]}
+                                    r="4"
+                                    fill={"white"}
+                                    style={{ zIndex: 3 }}
+                                />
+                                <circle
+                                    cx={currentYPosition[0]}
+                                    cy={currentYPosition[1]}
+                                    r="7"
+                                    fill={bodyColors[index]}
+                                    style={{ zIndex: 2 }}
+                                />
+                                <circle
+                                    cx={currentYPosition[0]}
+                                    cy={currentYPosition[1]}
+                                    r="4"
+                                    fill={"white"}
+                                    style={{ zIndex: 2 }}
                                 />
                             </g>
                         );
                     })}
                 </svg>
             </Box>
-            <Box key="legend" display="flex" alignItems="center" justifyContent="flex-start">
+            <Box key="legend" display="flex" alignItems="center" justifyContent="flex-start" mt={2}>
                 <Box display="flex" alignItems="center" mr={2}>
                     <svg width="30" height="20">
                         <line x1="0" y1="10" x2="15" y2="10" stroke="white" strokeWidth="2" />

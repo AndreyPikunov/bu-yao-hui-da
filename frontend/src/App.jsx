@@ -22,6 +22,7 @@ function App() {
     const [selectedTrajectoryIndex, setSelectedTrajectoryIndex] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [currentStep, setCurrentStep] = useState(0);
 
     useEffect(() => {
         async function fetchTrajectories() {
@@ -41,6 +42,17 @@ function App() {
 
         fetchTrajectories();
     }, []);
+
+    useEffect(() => {
+        if (selectedTrajectoryIndex !== null) {
+            const trajectory = trajectories[selectedTrajectoryIndex].data;
+            const intervalId = setInterval(() => {
+                setCurrentStep((prevStep) => (prevStep + 1) % trajectory[0].x.length);
+            }, 16);
+
+            return () => clearInterval(intervalId);
+        }
+    }, [selectedTrajectoryIndex, trajectories]);
 
     const handleTrajectorySelection = (event) => {
         setSelectedTrajectoryIndex(Number(event.target.value));
@@ -84,10 +96,16 @@ function App() {
                     </Paper>
 
                     <Paper elevation={3} sx={{ p: 2, width: '100%', maxWidth: 600, bgcolor: 'rgba(255, 255, 255, 0.02)' }}>
-                        <TrajectoryVisualization trajectory={selectedTrajectory.data} />
+                        <TrajectoryVisualization
+                            trajectory={selectedTrajectory.data}
+                            currentStep={currentStep}
+                        />
                     </Paper>
                     <Paper elevation={3} sx={{ p: 2, width: '100%', maxWidth: 600, bgcolor: 'rgba(255, 255, 255, 0.02)' }}>
-                        <TrajectoryTimeVisualization trajectory={selectedTrajectory.data} />
+                        <TrajectoryTimeVisualization
+                            trajectory={selectedTrajectory.data}
+                            currentStep={currentStep}
+                        />
                     </Paper>
                 </Stack>
             </Container>

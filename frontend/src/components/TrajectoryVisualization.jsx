@@ -1,7 +1,7 @@
-import React from 'react';
+import {Fragment } from 'react';
 import { Box } from '@mui/material';
 
-const TrajectoryVisualization = ({ trajectory }) => {
+const TrajectoryVisualization = ({ trajectory, currentStep }) => {
 
     if (!trajectory || trajectory.length !== 3) return null;
 
@@ -55,14 +55,32 @@ const TrajectoryVisualization = ({ trajectory }) => {
                         (i === 0 ? 'M' : 'L') + pos.join(',')
                     ).join(' ');
 
+                    const currentPosition = scaledPositions[currentStep];
+
                     return (
-                        <path
-                            key={index}
-                            d={pathData}
-                            fill="none"
-                            stroke={bodyColors[index]}
-                            strokeWidth="2"
-                        />
+                        <Fragment key={index}>
+                            <path
+                                d={pathData}
+                                fill="none"
+                                stroke={bodyColors[index]}
+                                strokeWidth="2"
+                                style={{ zIndex: 1 }}
+                            />
+                            <circle
+                                cx={currentPosition[0]}
+                                cy={currentPosition[1]}
+                                r="7"
+                                fill={bodyColors[index]}
+                                style={{ zIndex: 2 }}
+                            />
+                            <circle
+                                cx={currentPosition[0]}
+                                cy={currentPosition[1]}
+                                r="5"
+                                fill={"white"}
+                                style={{ zIndex: 3 }}
+                            />
+                        </Fragment>
                     );
                 })}
             </svg>

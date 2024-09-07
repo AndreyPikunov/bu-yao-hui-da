@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     Box,
-    Typography,
-    IconButton,
-    Paper
+    IconButton
 } from '@mui/material';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PauseIcon from '@mui/icons-material/Pause';
